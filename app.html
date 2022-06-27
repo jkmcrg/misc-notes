@@ -1,0 +1,70 @@
+<html>
+  <body>
+  	<script>
+      const HOST = 'https://nodes-on-nodes-challenge.herokuapp.com'
+      const ROUTE = '/nodes/'
+      const INITIAL_PARENT_NODE_ID = '089ef556-dfff-4ff2-9733-654645be56fe'
+      const CHILD_NODES_KEY = "child_node_ids"
+
+      const expand_div_tree = async (parent_id) => {
+        const response = await fetch(HOST + ROUTE + parent_id)
+        const data = await response.json()
+        if(Array.isArray(data)) {
+          for (let i = 0; i < data.length; i++) {
+            const node = data[i]
+            if (Array.isArray(node[CHILD_NODES_KEY])) {
+              for (let j = 0; j < node[CHILD_NODES_KEY].length; j++) {
+                const id = node[CHILD_NODES_KEY][j]
+                let node_div = document.createElement('div')
+                node_div.className = 'node class-' + id
+
+                let id_flag = document.createElement('label')
+                id_flag.innerHTML = id
+                node_div.appendChild(id_flag)
+
+                const current_divs = document.getElementsByClassName('class-' + parent_id)
+                current_divs[current_divs.length - 1].appendChild(node_div)
+                await expand_div_tree(id)
+              }
+            }
+            console.log(node['id'])
+          }
+        }
+      }
+      (async function() {
+        await expand_div_tree('089ef556-dfff-4ff2-9733-654645be56fe')
+        console.log('done')
+      })()
+      // def append_network_nodes(id_list, parent_id)
+//   next_nodes = JSON.parse(Net::HTTP.get(HOST, ROUTE + parent_id))
+//   next_nodes.each do |node|
+//     id_list.push node["id"]
+//     node[CHILD_NODES_KEY].each { |id| append_network_nodes(id_list, id) }
+//   end
+// end
+  	</script>
+    <style type="text/css">
+      .node {
+        display: inline-block;
+        padding: 0.5rem 3rem;
+      }
+      .node ~ label {
+        font-weight: bold;
+      }
+      .hoverReveal:hover .node {
+        /*color: white;*/
+      }
+      .hoverReveal:hover .class-089ef556-dfff-4ff2-9733-654645be56fe {
+        /*color: green;*/
+      }
+      /*.hoverReveal */
+    </style>
+    <div class="hoverReveal unique"><strong>unique nodes</strong>
+      <div class="hoverReveal common"><strong>most common nodes</strong>
+        <div id="root_node" class="class-089ef556-dfff-4ff2-9733-654645be56fe">
+          <label>089ef556-dfff-4ff2-9733-654645be56fe</label>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
